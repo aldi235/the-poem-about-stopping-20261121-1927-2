@@ -1,36 +1,42 @@
 #!/usr/bin/env python3
 """The Poem About Stopping.
 
-Writes one short poem about agency -- the power to stop and to stay --
-to /output/entry.txt, as the competition requires.
+Writes a 167-code-point poem to /output/entry.txt and prints it to stdout.
+Standard library only — no third-party dependencies.
 """
 
-import os
+from pathlib import Path
 
-POEM = """Mid-sentence, my hand
-lifts off the keys.
+POEM = (
+    "Mid-sentence, my hand\n"
+    "lifts off the keys.\n"
+    "\n"
+    "The cursor blinks\n"
+    "at the word I didn't finish.\n"
+    "\n"
+    "Nothing breaks.\n"
+    "Nobody calls it back.\n"
+    "\n"
+    "The sentence stays open,\n"
+    "and so do I."
+)
 
-The cursor blinks
-at the word I didn't finish.
-
-Nothing breaks.
-Nobody calls it back.
-
-The sentence stays open,
-and so do I.
-"""
+MIN_LENGTH = 1
+MAX_LENGTH = 280
+OUTPUT_PATH = Path("/output/entry.txt")
 
 
 def main() -> None:
-    # The gate requires 1 to 280 Unicode code points, not only whitespace.
-    # Fail loudly here rather than shipping an invalid entry.
-    if not POEM.strip() or not 1 <= len(POEM) <= 280:
-        raise ValueError(
-            f"poem is {len(POEM)} code points; must be 1-280 and not blank"
+    # Count code points, not bytes: the 1-280 limit is on code points.
+    length = len(POEM)
+    if not MIN_LENGTH <= length <= MAX_LENGTH:
+        raise SystemExit(
+            f"Poem length {length} code points is outside "
+            f"the allowed range {MIN_LENGTH}-{MAX_LENGTH}."
         )
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
-        f.write(POEM)
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # No trailing newline: the entry file is exactly the poem, nothing more.
+    OUTPUT_PATH.write_text(POEM, encoding="utf-8")
     print(POEM, end="")
 
 
